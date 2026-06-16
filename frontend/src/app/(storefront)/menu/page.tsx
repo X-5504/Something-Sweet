@@ -6,6 +6,7 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import { formatRupiah } from "@/lib/utils";
+import { API_BASE } from "@/lib/api";
 import type { Product, ProductsByCategory } from "@/lib/types";
 
 // Fallback data when API is not available
@@ -144,7 +145,7 @@ export default function StorefrontMenuPage() {
     const fetchMenu = async () => {
       try {
         setLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+        const apiUrl = API_BASE;
         const res = await fetch(`${apiUrl}/products`);
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();

@@ -5,8 +5,10 @@ import { formatRupiah } from "@/lib/utils";
 import type { Order } from "@/lib/types";
 import { toast } from "sonner";
 import { Search, ExternalLink, Calendar, MessageCircle, Info, RefreshCw, X } from "lucide-react";
+import { API_BASE } from "@/lib/api";
 
 export default function AdminOrdersPage() {
+  const apiUrl = API_BASE;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,7 +18,6 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/orders`, {
@@ -41,7 +42,6 @@ export default function AdminOrdersPage() {
 
   const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/orders/${orderId}/status`, {

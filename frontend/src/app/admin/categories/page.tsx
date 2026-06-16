@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Loader2, FolderKanban, X } from "lucide-react";
+import { API_BASE } from "@/lib/api";
 
 interface Category {
   id: string;
@@ -12,6 +13,7 @@ interface Category {
 }
 
 export default function AdminCategoriesPage() {
+  const apiUrl = API_BASE;
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +29,6 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     setLoading(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/categories`);
@@ -73,7 +74,6 @@ export default function AdminCategoriesPage() {
     }
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     const payload = {
       name: name.trim(),
@@ -125,7 +125,6 @@ export default function AdminCategoriesPage() {
     }
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/categories/${id}`, {

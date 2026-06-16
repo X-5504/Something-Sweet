@@ -6,8 +6,10 @@ import type { Product, Category } from "@/lib/types";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Loader2, Upload, X } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { API_BASE } from "@/lib/api";
 
 export default function AdminProductsPage() {
+  const apiUrl = API_BASE;
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,6 @@ export default function AdminProductsPage() {
   const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
@@ -113,7 +114,6 @@ export default function AdminProductsPage() {
 
     setUploadingImage(true);
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/upload`, {
@@ -160,7 +160,6 @@ export default function AdminProductsPage() {
     }
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     const payload = {
       name,
@@ -220,7 +219,6 @@ export default function AdminProductsPage() {
     }
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/products/${p.id}`, {
@@ -246,7 +244,6 @@ export default function AdminProductsPage() {
     if (!confirm(`Are you sure you want to delete product: "${name}"?`)) return;
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/products/${id}`, {

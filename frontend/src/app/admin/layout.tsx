@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { API_BASE } from "@/lib/api";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LayoutDashboard, ShoppingBag, Settings, LogOut, Loader2, Cake, FolderKanban } from "lucide-react";
@@ -33,7 +34,7 @@ export default function AdminLayout({
     }
 
     // Verify token by calling backend me endpoint
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+    const apiUrl = API_BASE;
     fetch(`${apiUrl}/admin/me`, {
       headers: {
         Authorization: `Bearer ${token}`,

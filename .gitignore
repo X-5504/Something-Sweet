@@ -50,3 +50,9 @@ backend/tmp/
 *.dylib
 *.test
 *.out
+
+# Agent / Assistant metadata
+AGENTS.md
+agents.md
+CLAUDE.md
+claude.md

@@ -5,6 +5,7 @@ import { formatRupiah } from "@/lib/utils";
 import type { DeliveryZone } from "@/lib/types";
 import { toast } from "sonner";
 import { Calendar, Truck, Trash2, Plus, Info, Loader2, X } from "lucide-react";
+import { API_BASE } from "@/lib/api";
 
 interface BlockedDateDetail {
   id: string;
@@ -13,6 +14,7 @@ interface BlockedDateDetail {
 }
 
 export default function AdminSettingsPage() {
+  const apiUrl = API_BASE;
   const [activeTab, setActiveTab] = useState<"dates" | "zones">("dates");
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +37,6 @@ export default function AdminSettingsPage() {
   const fetchData = async () => {
     setLoading(true);
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
@@ -73,7 +74,6 @@ export default function AdminSettingsPage() {
     if (!newDate) return;
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/blocked-dates`, {
@@ -105,7 +105,6 @@ export default function AdminSettingsPage() {
     if (!confirm(`Are you sure you want to open preorders again for ${formattedDate}?`)) return;
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/blocked-dates/${id}`, {
@@ -150,7 +149,6 @@ export default function AdminSettingsPage() {
     if (!zoneName || !zoneFee) return;
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     const payload = {
       name: zoneName,
@@ -195,7 +193,6 @@ export default function AdminSettingsPage() {
     if (!confirm(`Are you sure you want to delete delivery zone: "${name}"?`)) return;
 
     const token = localStorage.getItem("admin_token");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/admin/delivery-zones/${id}`, {

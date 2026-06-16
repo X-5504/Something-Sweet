@@ -6,6 +6,7 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import { formatRupiah } from "@/lib/utils";
+import { API_BASE } from "@/lib/api";
 import type { Product } from "@/lib/types";
 import Link from "next/link";
 
@@ -73,7 +74,7 @@ export function BestSellersSection({ initialData }: BestSellersSectionProps) {
     const fetchBestSellers = async () => {
       try {
         setLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+        const apiUrl = API_BASE;
         const res = await fetch(`${apiUrl}/products/best-sellers`);
         if (!res.ok) throw new Error("Failed to fetch best sellers");
         const data = await res.json();

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import { api } from "@/lib/api";
+import { api, API_BASE } from "@/lib/api";
 import { formatRupiah } from "@/lib/utils";
 import type { Order } from "@/lib/types";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,7 @@ export default function MockPaymentPage({
   const handleSimulatePayment = async (success: boolean) => {
     setProcessing(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"}/payments/mock-trigger`, {
+      const res = await fetch(`${API_BASE}/payments/mock-trigger`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
