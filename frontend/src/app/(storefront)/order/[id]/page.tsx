@@ -6,7 +6,7 @@ import { formatRupiah } from "@/lib/utils";
 import type { Order } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Clock, ShoppingBag, MapPin, Phone, HelpCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, ShoppingBag, MapPin, Phone, HelpCircle, Copy } from "lucide-react";
 
 export default function OrderDetailsPage({
   params,
@@ -125,7 +125,19 @@ export default function OrderDetailsPage({
             <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest">Order Details</p>
             <h1 className="text-2xl font-extrabold text-gray-900 mt-1 flex items-center gap-2">
               <span>Code:</span>
-              <span className="font-mono text-pink-600">{order.order_number}</span>
+              <span className="font-mono text-pink-600 flex items-center gap-1.5">
+                {order.order_number}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.order_number);
+                    toast.success("Order code copied!");
+                  }}
+                  className="p-1 text-gray-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors cursor-pointer"
+                  title="Copy Order Code"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">
               Placed on {new Date(order.created_at || "").toLocaleString("id-ID")}
@@ -149,7 +161,7 @@ export default function OrderDetailsPage({
           <div className="py-4">
             <div className="relative flex justify-between items-center w-full max-w-2xl mx-auto">
               {/* Progress Line Bar */}
-              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-gray-100 -z-0">
+              <div className="absolute left-0 right-0 top-5 -translate-y-1/2 h-1 bg-gray-100 -z-0">
                 <div
                   className="h-full bg-pink-500 transition-all duration-500"
                   style={{

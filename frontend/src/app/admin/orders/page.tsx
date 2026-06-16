@@ -216,6 +216,26 @@ export default function AdminOrdersPage() {
                         Details
                       </button>
 
+                      {/* Confirm Order (Paid -> Confirmed) */}
+                      {order.status === "paid" && (
+                        <button
+                          onClick={() => handleUpdateStatus(order.id, "confirmed")}
+                          className="px-3 py-1.5 bg-pink-500 hover:bg-pink-600 text-white rounded-lg text-xs font-bold transition-colors shadow-xs cursor-pointer"
+                        >
+                          Confirm Order
+                        </button>
+                      )}
+
+                      {/* Deliver Order (Confirmed -> Delivered) */}
+                      {order.status === "confirmed" && (
+                        <button
+                          onClick={() => handleUpdateStatus(order.id, "delivered")}
+                          className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition-colors shadow-xs cursor-pointer"
+                        >
+                          Mark Delivered
+                        </button>
+                      )}
+
                       {/* WhatsApp Button */}
                       <a
                         href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}`}
@@ -297,6 +317,21 @@ export default function AdminOrdersPage() {
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
+
+                  {selectedOrder.status !== "cancelled" && selectedOrder.status !== "delivered" && (
+                    <div className="pt-2">
+                      <button
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to CANCEL order ${selectedOrder.order_number}?`)) {
+                            handleUpdateStatus(selectedOrder.id, "cancelled");
+                          }
+                        }}
+                        className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold border border-rose-200 transition-colors cursor-pointer"
+                      >
+                        Cancel Order
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

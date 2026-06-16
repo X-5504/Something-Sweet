@@ -69,7 +69,7 @@ type Order struct {
 	DeliveryMethod  string         `gorm:"not null" json:"delivery_method"` // "grab" | "gosend" | "pickup"
 	PreorderDate    time.Time      `gorm:"type:date;not null" json:"preorder_date"`
 	Subtotal        int64          `gorm:"not null" json:"subtotal"`
-	DeliveryFee     int64          `gorm:"default:20000" json:"delivery_fee"`
+	DeliveryFee     int64          `json:"delivery_fee"`
 	TotalAmount     int64          `gorm:"not null" json:"total_amount"`
 	Status          string         `gorm:"default:'pending'" json:"status"` // pending | paid | confirmed | delivered | cancelled
 	Notes           string         `json:"notes"`

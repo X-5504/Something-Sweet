@@ -6,7 +6,7 @@ import { formatRupiah } from "@/lib/utils";
 import type { Order } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Info, ShieldAlert, CreditCard } from "lucide-react";
+import { CheckCircle2, XCircle, Info, ShieldAlert, CreditCard, Copy } from "lucide-react";
 
 export default function MockPaymentPage({
   params,
@@ -133,7 +133,19 @@ export default function MockPaymentPage({
             <p className="text-xs text-zinc-500 uppercase tracking-widest">Transaction Invoice</p>
             <div className="grid grid-cols-2 gap-y-3 text-sm">
               <div className="text-zinc-500">Order Number:</div>
-              <div className="text-white font-mono text-right">{order.order_number}</div>
+              <div className="text-white font-mono text-right flex items-center justify-end gap-1.5">
+                {order.order_number}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.order_number);
+                    toast.success("Order code copied!");
+                  }}
+                  className="p-1 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+                  title="Copy Order Code"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
               <div className="text-zinc-500">Customer Name:</div>
               <div className="text-white text-right">{order.customer_name}</div>

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -63,6 +64,9 @@ func ComputeMD5(input string) string {
 
 // mapPaymentMethod maps frontend payment method names to Duitku payment codes.
 func mapPaymentMethod(method string) string {
+	if method == "" {
+		return "SP" // Default to QRIS / ShopeePay if empty to prevent mandatory method failure
+	}
 	switch method {
 	case "QRIS":
 		return "SP" // ShopeePay QRIS (standard in Duitku Sandbox)
@@ -170,8 +174,10 @@ func RequestDuitkuInquiry(order models.Order, paymentMethod string) (*DuitkuInqu
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("[Duitku Service] API returned non-OK status: %d", resp.StatusCode)
-		return nil, fmt.Errorf("Duitku API returned HTTP status %d", resp.StatusCode)
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		log.Printf("[Duitku Service] API returned non-OK status: %d, body: %s", resp.StatusCode, bodyString)
+		return nil, fmt.Errorf("Duitku API returned HTTP status %d: %s", resp.StatusCode, bodyString)
 	}
 
 	var inquiryResp DuitkuInquiryResponse
