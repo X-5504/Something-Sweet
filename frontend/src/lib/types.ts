@@ -21,6 +21,7 @@ export interface Product {
 }
 
 export interface ProductsByCategory {
+  category_id?: string;
   category: string;
   description: string;
   items: Product[];

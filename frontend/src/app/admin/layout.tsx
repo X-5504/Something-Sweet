@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { LayoutDashboard, ShoppingBag, Settings, LogOut, Loader2, Cake } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Settings, LogOut, Loader2, Cake, FolderKanban } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminLayout({
@@ -82,6 +82,7 @@ export default function AdminLayout({
   const navItems = [
     { name: "Orders", path: "/admin/orders", icon: LayoutDashboard },
     { name: "Products", path: "/admin/products", icon: Cake },
+    { name: "Categories", path: "/admin/categories", icon: FolderKanban },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 
