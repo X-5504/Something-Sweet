@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"something-sweet/backend/internal/config"
@@ -15,9 +16,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetBaseOrderNumber extracts the base order number by stripping the unique timestamp suffix.
+// E.g. "SS-20260616-7048-1718529384" -> "SS-20260616-7048"
+func GetBaseOrderNumber(merchantOrderID string) string {
+	parts := strings.Split(merchantOrderID, "-")
+	if len(parts) > 3 {
+		return strings.Join(parts[:3], "-")
+	}
+	return merchantOrderID
+}
+
 type CreatePaymentInput struct {
 	OrderID       string `json:"order_id" binding:"required"`
-	PaymentMethod string `json:"payment_method" binding:"required"` // e.g. "BCA VA" -> code for Duitku
+	PaymentMethod string `json:"payment_method"` // e.g. "BCA VA" -> code for Duitku (optional)
 }
 
 // CreatePayment handles initiating a transaction with Duitku
@@ -133,11 +144,13 @@ func DuitkuCallback(c *gin.Context) {
 func processPaymentStatusUpdate(orderNumber string, resultCode string, reference string, rawData interface{}) error {
 	tx := database.DB.Begin()
 
+	baseOrderNumber := GetBaseOrderNumber(orderNumber)
+
 	// Find the order
 	var order models.Order
-	if err := tx.First(&order, "order_number = ?", orderNumber).Error; err != nil {
+	if err := tx.First(&order, "order_number = ?", baseOrderNumber).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("order %s not found", orderNumber)
+		return fmt.Errorf("order %s not found", baseOrderNumber)
 	}
 
 	// Find the payment
@@ -210,7 +223,7 @@ func LocalMockTrigger(c *gin.Context) {
 	}
 
 	var order models.Order
-	if err := database.DB.First(&order, "id = ?", input.OrderID).Error; err != nil {
+	if err := database.DB.Preload("Payment").First(&order, "id = ?", input.OrderID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 		return
 	}
@@ -220,11 +233,16 @@ func LocalMockTrigger(c *gin.Context) {
 		resultCode = "01"
 	}
 
+	merchantOrderID := order.OrderNumber
+	if order.Payment != nil && order.Payment.MerchantOrderID != "" {
+		merchantOrderID = order.Payment.MerchantOrderID
+	}
+
 	// Build a mock callback request
 	req := DuitkuCallbackRequest{
 		MerchantCode:    config.AppConfig.DuitkuMerchantCode,
 		Amount:          order.TotalAmount,
-		MerchantOrderID: order.OrderNumber,
+		MerchantOrderID: merchantOrderID,
 		ProductDetails:  "Mock Payment Session",
 		ResultCode:      resultCode,
 		Reference:       "MOCK-REF-" + order.OrderNumber,
@@ -234,7 +252,7 @@ func LocalMockTrigger(c *gin.Context) {
 	sigStr := fmt.Sprintf("%s%d%s%s", req.MerchantCode, req.Amount, req.MerchantOrderID, config.AppConfig.DuitkuApiKey)
 	req.Signature = services.ComputeMD5(sigStr)
 
-	err := processPaymentStatusUpdate(order.OrderNumber, resultCode, req.Reference, &req)
+	err := processPaymentStatusUpdate(req.MerchantOrderID, resultCode, req.Reference, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Mock processing failed: %v", err)})
 		return

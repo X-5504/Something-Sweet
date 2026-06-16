@@ -45,12 +45,13 @@ type DuitkuInquiryRequest struct {
 }
 
 type DuitkuInquiryResponse struct {
-	MerchantCode  string `json:"merchantCode"`
-	Reference     string `json:"reference"`
-	PaymentUrl    string `json:"paymentUrl"`
-	StatusCode    string `json:"statusCode"`
-	StatusMessage string `json:"statusMessage"`
-	VANumber      string `json:"vaNumber"`
+	MerchantCode    string `json:"merchantCode"`
+	Reference       string `json:"reference"`
+	PaymentUrl      string `json:"paymentUrl"`
+	StatusCode      string `json:"statusCode"`
+	StatusMessage   string `json:"statusMessage"`
+	VANumber        string `json:"vaNumber"`
+	MerchantOrderID string `json:"-"` // Helper field to track the generated ID sent to Duitku
 }
 
 // ComputeMD5 computes the MD5 hash of a string
@@ -60,12 +61,31 @@ func ComputeMD5(input string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+// mapPaymentMethod maps frontend payment method names to Duitku payment codes.
+func mapPaymentMethod(method string) string {
+	switch method {
+	case "QRIS":
+		return "SP" // ShopeePay QRIS (standard in Duitku Sandbox)
+	case "BCA VA":
+		return "BC"
+	case "Mandiri VA":
+		return "M2"
+	default:
+		return method
+	}
+}
+
 // RequestDuitkuInquiry initiates a transaction with Duitku
 func RequestDuitkuInquiry(order models.Order, paymentMethod string) (*DuitkuInquiryResponse, error) {
 	cfg := config.AppConfig
 
+	mappedPaymentMethod := mapPaymentMethod(paymentMethod)
+
+	// Generate unique Merchant Order ID using a Unix timestamp suffix to avoid 409 Conflict in Duitku Sandbox
+	merchantOrderID := fmt.Sprintf("%s-%d", order.OrderNumber, time.Now().Unix())
+
 	// Prepare signature: md5(merchantCode + merchantOrderId + paymentAmount + apiKey)
-	sigStr := fmt.Sprintf("%s%s%d%s", cfg.DuitkuMerchantCode, order.OrderNumber, order.TotalAmount, cfg.DuitkuApiKey)
+	sigStr := fmt.Sprintf("%s%s%d%s", cfg.DuitkuMerchantCode, merchantOrderID, order.TotalAmount, cfg.DuitkuApiKey)
 	signature := ComputeMD5(sigStr)
 
 	// Build items details
@@ -99,10 +119,10 @@ func RequestDuitkuInquiry(order models.Order, paymentMethod string) (*DuitkuInqu
 	reqBody := DuitkuInquiryRequest{
 		MerchantCode:    cfg.DuitkuMerchantCode,
 		PaymentAmount:   order.TotalAmount,
-		MerchantOrderID: order.OrderNumber,
+		MerchantOrderID: merchantOrderID,
 		ProductDetails:  productDetails,
 		AdditionalParam: "",
-		PaymentMethod:   paymentMethod,
+		PaymentMethod:   mappedPaymentMethod,
 		Email:           order.CustomerEmail,
 		PhoneNumber:     order.CustomerPhone,
 		ItemDetails:     items,
@@ -144,14 +164,14 @@ func RequestDuitkuInquiry(order models.Order, paymentMethod string) (*DuitkuInqu
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("[Duitku Service] API call failed: %v. Falling back to Mock.", err)
-		return createMockInquiryResponse(order, paymentMethod)
+		log.Printf("[Duitku Service] API call failed: %v", err)
+		return nil, fmt.Errorf("Duitku API call failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("[Duitku Service] API returned non-OK status: %d. Falling back to Mock.", resp.StatusCode)
-		return createMockInquiryResponse(order, paymentMethod)
+		log.Printf("[Duitku Service] API returned non-OK status: %d", resp.StatusCode)
+		return nil, fmt.Errorf("Duitku API returned HTTP status %d", resp.StatusCode)
 	}
 
 	var inquiryResp DuitkuInquiryResponse
@@ -160,11 +180,12 @@ func RequestDuitkuInquiry(order models.Order, paymentMethod string) (*DuitkuInqu
 	}
 
 	if inquiryResp.StatusCode != "00" {
-		log.Printf("[Duitku Service] Inquiry failed with statusCode: %s, message: %s. Falling back to Mock.", 
+		log.Printf("[Duitku Service] Inquiry failed with statusCode: %s, message: %s", 
 			inquiryResp.StatusCode, inquiryResp.StatusMessage)
-		return createMockInquiryResponse(order, paymentMethod)
+		return nil, fmt.Errorf("Duitku error: %s (code: %s)", inquiryResp.StatusMessage, inquiryResp.StatusCode)
 	}
 
+	inquiryResp.MerchantOrderID = merchantOrderID
 	return &inquiryResp, nil
 }
 
@@ -179,12 +200,13 @@ func createMockInquiryResponse(order models.Order, paymentMethod string) (*Duitk
 	}
 
 	return &DuitkuInquiryResponse{
-		MerchantCode:  config.AppConfig.DuitkuMerchantCode,
-		Reference:     "MOCK-REF-" + order.OrderNumber,
-		PaymentUrl:    mockPaymentUrl,
-		StatusCode:    "00",
-		StatusMessage: "SUCCESS",
-		VANumber:      vaNumber,
+		MerchantCode:    config.AppConfig.DuitkuMerchantCode,
+		Reference:       "MOCK-REF-" + order.OrderNumber,
+		PaymentUrl:      mockPaymentUrl,
+		StatusCode:      "00",
+		StatusMessage:   "SUCCESS",
+		VANumber:        vaNumber,
+		MerchantOrderID: order.OrderNumber,
 	}, nil
 }
 

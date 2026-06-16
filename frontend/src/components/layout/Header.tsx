@@ -35,7 +35,7 @@ export function Header() {
               href="/#menu"
               className="text-gray-600 hover:text-pink-500 font-medium transition-colors"
             >
-              Our Menu
+              Menu
             </Link>
             <Link
               href="/track"
@@ -100,7 +100,7 @@ export function Header() {
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-pink-500 hover:bg-pink-50"
             onClick={() => setIsMenuOpen(false)}
           >
-            Our Menu
+            Menu
           </Link>
           <Link
             href="/track"

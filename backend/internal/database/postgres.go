@@ -29,25 +29,29 @@ func InitDB() {
 
 	log.Println("Database connection established successfully")
 
-	// Run Migrations
-	err = DB.AutoMigrate(
-		&models.Category{},
-		&models.Product{},
-		&models.Order{},
-		&models.OrderItem{},
-		&models.Payment{},
-		&models.BlockedDate{},
-		&models.DeliveryZone{},
-		&models.Admin{},
-	)
-	if err != nil {
-		log.Fatalf("Failed to run database migrations: %v", err)
+	// Run Migrations only if the database is fresh (e.g. table 'admins' does not exist)
+	if !DB.Migrator().HasTable(&models.Admin{}) {
+		log.Println("Database is fresh, running migrations...")
+		err = DB.AutoMigrate(
+			&models.Category{},
+			&models.Product{},
+			&models.Order{},
+			&models.OrderItem{},
+			&models.Payment{},
+			&models.BlockedDate{},
+			&models.DeliveryZone{},
+			&models.Admin{},
+		)
+		if err != nil {
+			log.Fatalf("Failed to run database migrations: %v", err)
+		}
+		log.Println("Database migrations completed successfully")
+
+		// Seed Data
+		SeedData()
+	} else {
+		log.Println("Database schema is already initialized. Skipping migrations and seeding.")
 	}
-
-	log.Println("Database migrations completed successfully")
-
-	// Seed Data
-	SeedData()
 }
 
 func SeedData() {

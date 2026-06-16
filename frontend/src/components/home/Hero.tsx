@@ -36,11 +36,6 @@ export function Hero() {
                 </svg>
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed">
-              Freshly baked. Soft texture. Balanced flavor. A simple slice of
-              comfort, made for you.
-            </p>
-
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="https://wa.me/1234567890?text=Hi!%20I'd%20like%20to%20request%20a%20custom%20order!"

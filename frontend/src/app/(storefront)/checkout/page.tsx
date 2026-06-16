@@ -33,7 +33,7 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
 
   // Payment Options
-  const [paymentMethod, setPaymentMethod] = useState("QRIS"); // Default payment method
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   useEffect(() => {
     // If cart is empty, redirect back to menu
@@ -365,34 +365,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Section 4: Payment Method */}
-            <div className="bg-white rounded-3xl p-6 border border-pink-100 shadow-sm space-y-4">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 pb-3 border-b border-pink-50">
-                <CreditCard className="w-5 h-5 text-pink-500" />
-                Payment Method
-              </h2>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { name: "QRIS", desc: "GoPay, OVO, ShopeePay, Dana" },
-                  { name: "BCA VA", desc: "BCA Virtual Account" },
-                  { name: "Mandiri VA", desc: "Mandiri Virtual Account" }
-                ].map(pm => (
-                  <label
-                    key={pm.name}
-                    onClick={() => setPaymentMethod(pm.name)}
-                    className={`cursor-pointer rounded-xl border-2 p-4 flex flex-col justify-between transition-all ${
-                      paymentMethod === pm.name
-                        ? "border-pink-500 bg-pink-50/30 text-pink-600 shadow-sm"
-                        : "border-gray-100 bg-gray-50 hover:bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    <span className="font-bold text-sm">{pm.name}</span>
-                    <span className="text-xxs text-gray-400 mt-1 block">{pm.desc}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+
           </form>
 
           {/* Order Summary Sidebar */}
