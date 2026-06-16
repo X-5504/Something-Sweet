@@ -25,6 +25,7 @@ export default function AdminProductsPage() {
   const [categoryId, setCategoryId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [isBestSeller, setIsBestSeller] = useState(false);
   const [sortOrder, setSortOrder] = useState("0");
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -77,6 +78,7 @@ export default function AdminProductsPage() {
     setUnit("");
     setImageUrl("");
     setIsActive(true);
+    setIsBestSeller(false);
     setSortOrder("0");
     if (categories.length > 0) {
       setCategoryId(categories[0].id);
@@ -94,6 +96,7 @@ export default function AdminProductsPage() {
     setCategoryId(p.category_id);
     setImageUrl(p.image_url || "");
     setIsActive(p.is_active);
+    setIsBestSeller(p.is_best_seller || false);
     setSortOrder((p.sort_order || 0).toString());
     setShowModal(true);
   };
@@ -155,6 +158,7 @@ export default function AdminProductsPage() {
       category_id: categoryId,
       image_url: imageUrl,
       is_active: isActive,
+      is_best_seller: isBestSeller,
       sort_order: parseInt(sortOrder),
     };
 
@@ -278,6 +282,11 @@ export default function AdminProductsPage() {
               <div>
                 <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden">
                   <ImageWithFallback src={p.image_url || ""} alt={p.name} className="w-full h-full object-cover" />
+                  {p.is_best_seller && (
+                    <span className="absolute top-3 left-3 bg-pink-500 text-xs font-bold text-white px-3 py-1 rounded-full shadow-md z-10 animate-pulse">
+                      Best Seller
+                    </span>
+                  )}
                   <span className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs text-xs font-bold text-gray-700 px-3 py-1 rounded-full border border-gray-100 shadow-xs">
                     {p.category?.name || "Uncategorized"}
                   </span>
@@ -462,7 +471,7 @@ export default function AdminProductsPage() {
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 text-gray-900"
                   />
                 </div>
-                <div className="flex items-center pt-6 pl-2">
+                <div className="flex flex-col gap-3 pt-6 pl-2 sm:flex-row sm:items-center sm:gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -470,7 +479,16 @@ export default function AdminProductsPage() {
                       onChange={e => setIsActive(e.target.checked)}
                       className="accent-pink-500 h-4 w-4"
                     />
-                    <span className="text-sm font-medium text-gray-700">Display in storefront Catalog</span>
+                    <span className="text-sm font-medium text-gray-700">Display in Catalog</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isBestSeller}
+                      onChange={e => setIsBestSeller(e.target.checked)}
+                      className="accent-pink-500 h-4 w-4"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Best Seller ⭐</span>
                   </label>
                 </div>
               </div>

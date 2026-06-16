@@ -21,6 +21,7 @@ func SetupRouter() *gin.Engine {
 	{
 		// Storefront (Public) Routes
 		api.GET("/products", handlers.GetProducts)
+		api.GET("/products/best-sellers", handlers.GetBestSellers)
 		api.GET("/products/:id", handlers.GetProductByID)
 		api.GET("/categories", handlers.GetCategories)
 		api.GET("/blocked-dates", handlers.GetBlockedDates)

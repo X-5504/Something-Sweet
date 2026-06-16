@@ -142,10 +142,38 @@ interface MenuSectionProps {
 }
 
 export function MenuSection({ initialData }: MenuSectionProps) {
-  const menuItems = initialData || fallbackMenuItems;
+  const [menuItems, setMenuItems] = React.useState<ProductsByCategory[]>(initialData || []);
+  const [loading, setLoading] = React.useState(!initialData);
+
+  React.useEffect(() => {
+    if (initialData && initialData.length > 0) {
+      setMenuItems(initialData);
+      setLoading(false);
+      return;
+    }
+
+    const fetchMenu = async () => {
+      try {
+        setLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+        const res = await fetch(`${apiUrl}/products`);
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setMenuItems(data);
+      } catch (err) {
+        console.error("Client-side menu fetch failed, using fallback items:", err);
+        setMenuItems(fallbackMenuItems);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenu();
+  }, [initialData]);
+
   const { items, addToCart, updateQuantity } = useCart();
 
-  const handleAddToCart = (item: (typeof menuItems)[0]["items"][0]) => {
+  const handleAddToCart = (item: ProductsByCategory["items"][0]) => {
     addToCart({
       id: item.id,
       name: item.name,
@@ -156,12 +184,25 @@ export function MenuSection({ initialData }: MenuSectionProps) {
     toast.success(`Added ${item.name} to your cart!`);
   };
 
+  if (loading) {
+    return (
+      <section id="menu" className="py-24 bg-white transition-colors duration-500">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-64 flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-500 font-medium text-sm">Loading menu...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="menu" className="py-24 bg-white transition-colors duration-500">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-4">
-            Best Seller
+            Our Menu
           </h2>
         </div>
 

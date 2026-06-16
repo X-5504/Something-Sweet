@@ -43,9 +43,10 @@ type Product struct {
 	Description string         `json:"description"`
 	Price       int64          `gorm:"not null" json:"price"` // in IDR
 	Unit        string         `gorm:"default:''" json:"unit"` // e.g. "/ box", "/ piece"
-	ImageURL    string         `json:"image_url"`
-	IsActive    bool           `gorm:"default:true" json:"is_active"`
-	SortOrder   int            `gorm:"default:0" json:"sort_order"`
+	ImageURL     string         `json:"image_url"`
+	IsActive     bool           `gorm:"default:true" json:"is_active"`
+	IsBestSeller bool           `gorm:"default:false" json:"is_best_seller"`
+	SortOrder    int            `gorm:"default:0" json:"sort_order"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`

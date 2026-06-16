@@ -1,7 +1,22 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from "react";
 import type { CartItem } from "@/lib/types";
+
+// Cookie helper functions
+const setCookie = (name: string, value: string, days = 7) => {
+  if (typeof window === "undefined") return;
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+};
+
+const getCookie = (name: string) => {
+  if (typeof window === "undefined") return "";
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=');
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+  }, '');
+};
 
 interface CartContextType {
   items: CartItem[];
@@ -20,6 +35,27 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const isLoaded = useRef(false);
+
+  // Load cart items from cookie on mount
+  useEffect(() => {
+    const savedCart = getCookie("cart_items");
+    if (savedCart) {
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Failed to parse cart from cookie", e);
+      }
+    }
+    isLoaded.current = true;
+  }, []);
+
+  // Save cart items to cookie when they change
+  useEffect(() => {
+    if (isLoaded.current) {
+      setCookie("cart_items", JSON.stringify(items));
+    }
+  }, [items]);
 
   const addToCart = useCallback((newItem: Omit<CartItem, "quantity">) => {
     setItems((prevItems) => {

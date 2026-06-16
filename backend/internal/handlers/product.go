@@ -68,6 +68,17 @@ func GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
+// GetBestSellers returns active products marked as best sellers
+func GetBestSellers(c *gin.Context) {
+	products := []models.Product{}
+	err := database.DB.Where("is_active = ? AND is_best_seller = ?", true, true).Order("sort_order asc, name asc").Find(&products).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch best sellers"})
+		return
+	}
+	c.JSON(http.StatusOK, products)
+}
+
 // --- Admin Endpoints ---
 
 // AdminGetProducts returns all products (active or inactive)
@@ -83,14 +94,15 @@ func AdminGetProducts(c *gin.Context) {
 // AdminCreateProduct creates a new product
 func AdminCreateProduct(c *gin.Context) {
 	var input struct {
-		CategoryID  string `json:"category_id" binding:"required"`
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
-		Price       int64  `json:"price" binding:"required,min=0"`
-		Unit        string `json:"unit"`
-		ImageURL    string `json:"image_url"`
-		IsActive    *bool  `json:"is_active"`
-		SortOrder   int    `json:"sort_order"`
+		CategoryID   string `json:"category_id" binding:"required"`
+		Name         string `json:"name" binding:"required"`
+		Description  string `json:"description"`
+		Price        int64  `json:"price" binding:"required,min=0"`
+		Unit         string `json:"unit"`
+		ImageURL     string `json:"image_url"`
+		IsActive     *bool  `json:"is_active"`
+		IsBestSeller *bool  `json:"is_best_seller"`
+		SortOrder    int    `json:"sort_order"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -103,15 +115,21 @@ func AdminCreateProduct(c *gin.Context) {
 		isActive = *input.IsActive
 	}
 
+	isBestSeller := false
+	if input.IsBestSeller != nil {
+		isBestSeller = *input.IsBestSeller
+	}
+
 	product := models.Product{
-		CategoryID:  input.CategoryID,
-		Name:        input.Name,
-		Description: input.Description,
-		Price:       input.Price,
-		Unit:        input.Unit,
-		ImageURL:    input.ImageURL,
-		IsActive:    isActive,
-		SortOrder:   input.SortOrder,
+		CategoryID:   input.CategoryID,
+		Name:         input.Name,
+		Description:  input.Description,
+		Price:        input.Price,
+		Unit:         input.Unit,
+		ImageURL:     input.ImageURL,
+		IsActive:     isActive,
+		IsBestSeller: isBestSeller,
+		SortOrder:    input.SortOrder,
 	}
 
 	if err := database.DB.Create(&product).Error; err != nil {
@@ -132,14 +150,15 @@ func AdminUpdateProduct(c *gin.Context) {
 	}
 
 	var input struct {
-		CategoryID  string `json:"category_id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		Price       *int64 `json:"price" binding:"omitempty,min=0"`
-		Unit        string `json:"unit"`
-		ImageURL    string `json:"image_url"`
-		IsActive    *bool  `json:"is_active"`
-		SortOrder   *int   `json:"sort_order"`
+		CategoryID   string `json:"category_id"`
+		Name         string `json:"name"`
+		Description  string `json:"description"`
+		Price        *int64 `json:"price" binding:"omitempty,min=0"`
+		Unit         string `json:"unit"`
+		ImageURL     string `json:"image_url"`
+		IsActive     *bool  `json:"is_active"`
+		IsBestSeller *bool  `json:"is_best_seller"`
+		SortOrder    *int   `json:"sort_order"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -167,6 +186,9 @@ func AdminUpdateProduct(c *gin.Context) {
 	}
 	if input.IsActive != nil {
 		product.IsActive = *input.IsActive
+	}
+	if input.IsBestSeller != nil {
+		product.IsBestSeller = *input.IsBestSeller
 	}
 	if input.SortOrder != nil {
 		product.SortOrder = *input.SortOrder

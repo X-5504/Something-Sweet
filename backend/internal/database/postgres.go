@@ -51,6 +51,13 @@ func InitDB() {
 		SeedData()
 	} else {
 		log.Println("Database schema is already initialized. Skipping migrations and seeding.")
+		// Check for and add is_best_seller column if it doesn't exist
+		if DB.Migrator().HasTable(&models.Product{}) && !DB.Migrator().HasColumn(&models.Product{}, "is_best_seller") {
+			log.Println("Adding is_best_seller column to products table...")
+			if err := DB.Migrator().AddColumn(&models.Product{}, "is_best_seller"); err != nil {
+				log.Printf("Warning: Failed to add is_best_seller column: %v", err)
+			}
+		}
 	}
 }
 

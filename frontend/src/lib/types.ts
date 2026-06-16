@@ -16,6 +16,7 @@ export interface Product {
   unit: string;
   image_url: string;
   is_active: boolean;
+  is_best_seller?: boolean;
   sort_order: number;
 }
 

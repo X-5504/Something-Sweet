@@ -3,6 +3,7 @@
 import React from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -46,13 +47,13 @@ export function Hero() {
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Request Custom Order
               </a>
-              <a
-                href="#menu"
+              <Link
+                href="/menu"
                 className="inline-flex justify-center items-center px-8 py-3.5 border-2 border-pink-200 text-lg font-medium rounded-full text-pink-600 bg-white hover:bg-pink-50 hover:border-pink-300 transition-all"
               >
                 See Menu
                 <ArrowRight className="w-5 h-5 ml-2" />
-              </a>
+              </Link>
             </div>
           </div>
 

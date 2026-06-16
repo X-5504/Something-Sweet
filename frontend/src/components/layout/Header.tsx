@@ -32,7 +32,7 @@ export function Header() {
               About
             </Link>
             <Link
-              href="/#menu"
+              href="/menu"
               className="text-gray-600 hover:text-pink-500 font-medium transition-colors"
             >
               Menu
@@ -96,7 +96,7 @@ export function Header() {
             About
           </Link>
           <Link
-            href="/#menu"
+            href="/menu"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-pink-500 hover:bg-pink-50"
             onClick={() => setIsMenuOpen(false)}
           >
