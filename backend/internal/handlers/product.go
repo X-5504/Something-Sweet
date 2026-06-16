@@ -120,6 +120,15 @@ func AdminCreateProduct(c *gin.Context) {
 		isBestSeller = *input.IsBestSeller
 	}
 
+	if isActive && isBestSeller {
+		var bestSellersCount int64
+		database.DB.Model(&models.Product{}).Where("is_active = ? AND is_best_seller = ?", true, true).Count(&bestSellersCount)
+		if bestSellersCount >= 6 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Maximum of 6 best seller products has been reached. Please unset another product first."})
+			return
+		}
+	}
+
 	product := models.Product{
 		CategoryID:   input.CategoryID,
 		Name:         input.Name,
@@ -192,6 +201,35 @@ func AdminUpdateProduct(c *gin.Context) {
 	}
 	if input.SortOrder != nil {
 		product.SortOrder = *input.SortOrder
+	}
+
+	// Validate maximum of 6 best sellers
+	willBeActiveBestSeller := false
+	if input.IsBestSeller != nil && *input.IsBestSeller {
+		activeStatus := product.IsActive
+		if input.IsActive != nil {
+			activeStatus = *input.IsActive
+		}
+		if activeStatus {
+			willBeActiveBestSeller = true
+		}
+	} else if input.IsBestSeller == nil && product.IsBestSeller {
+		activeStatus := product.IsActive
+		if input.IsActive != nil {
+			activeStatus = *input.IsActive
+		}
+		if activeStatus {
+			willBeActiveBestSeller = true
+		}
+	}
+
+	if willBeActiveBestSeller {
+		var bestSellersCount int64
+		database.DB.Model(&models.Product{}).Where("is_active = ? AND is_best_seller = ? AND id != ?", true, true, product.ID).Count(&bestSellersCount)
+		if bestSellersCount >= 6 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Maximum of 6 best seller products has been reached. Please unset another product first."})
+			return
+		}
 	}
 
 	if err := database.DB.Save(&product).Error; err != nil {

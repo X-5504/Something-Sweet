@@ -27,6 +27,7 @@ export default function AdminProductsPage() {
   const [isActive, setIsActive] = useState(true);
   const [isBestSeller, setIsBestSeller] = useState(false);
   const [sortOrder, setSortOrder] = useState("0");
+  const [activeTab, setActiveTab] = useState<"all" | "best_sellers" | "regular">("all");
 
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -147,6 +148,17 @@ export default function AdminProductsPage() {
       return;
     }
 
+    if (isActive && isBestSeller) {
+      const activeBestSellersCount = products.filter(
+        (p) => p.is_active && p.is_best_seller && p.id !== selectedProductId
+      ).length;
+
+      if (activeBestSellersCount >= 6) {
+        toast.error("Maximum of 6 active best seller products has been reached. Please deactivate or unset another first.");
+        return;
+      }
+    }
+
     const token = localStorage.getItem("admin_token");
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
@@ -197,6 +209,16 @@ export default function AdminProductsPage() {
   };
 
   const handleToggleActive = async (p: Product) => {
+    if (!p.is_active && p.is_best_seller) {
+      const activeBestSellersCount = products.filter(
+        (prod) => prod.is_active && prod.is_best_seller && prod.id !== p.id
+      ).length;
+      if (activeBestSellersCount >= 6) {
+        toast.error("Maximum of 6 active best seller products has been reached. Please deactivate or unset another first.");
+        return;
+      }
+    }
+
     const token = localStorage.getItem("admin_token");
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
@@ -243,6 +265,14 @@ export default function AdminProductsPage() {
     }
   };
 
+  const bestSellers = products.filter((p) => p.is_best_seller);
+  const regularProducts = products.filter((p) => !p.is_best_seller);
+
+  const displayedProducts =
+    activeTab === "best_sellers" ? bestSellers :
+    activeTab === "regular" ? regularProducts :
+    products;
+
   return (
     <div className="space-y-6">
       {/* Banner */}
@@ -260,6 +290,45 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
+      {/* Tabs Row */}
+      {!loading && products.length > 0 && (
+        <div className="flex border-b border-pink-100 pb-px gap-6 mb-6">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`pb-4 text-sm font-semibold transition-all relative cursor-pointer ${
+              activeTab === "all" ? "text-pink-500" : "text-gray-500 hover:text-pink-400"
+            }`}
+          >
+            All Products ({products.length})
+            {activeTab === "all" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("best_sellers")}
+            className={`pb-4 text-sm font-semibold transition-all relative flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "best_sellers" ? "text-pink-500" : "text-gray-500 hover:text-pink-400"
+            }`}
+          >
+            Best Sellers ⭐ ({products.filter(p => p.is_active && p.is_best_seller).length} / 6 active)
+            {activeTab === "best_sellers" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("regular")}
+            className={`pb-4 text-sm font-semibold transition-all relative cursor-pointer ${
+              activeTab === "regular" ? "text-pink-500" : "text-gray-500 hover:text-pink-400"
+            }`}
+          >
+            Regular Bakes ({products.filter(p => !p.is_best_seller).length})
+            {activeTab === "regular" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500 rounded-full" />
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Grid List */}
       {loading ? (
         <div className="h-64 flex flex-col items-center justify-center text-center space-y-4">
@@ -270,9 +339,17 @@ export default function AdminProductsPage() {
         <div className="bg-white rounded-3xl border border-pink-100 p-12 text-center space-y-4">
           <p className="text-gray-500">No products created yet. Click "Add Product" to create your first cake!</p>
         </div>
+      ) : displayedProducts.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-pink-100 p-12 text-center space-y-4 shadow-xs">
+          <p className="text-gray-500 font-medium">
+            {activeTab === "best_sellers"
+              ? "No best seller products found. Go edit a product and check the 'Best Seller ⭐' box to add it here."
+              : "No regular products found."}
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((p) => (
+          {displayedProducts.map((p) => (
             <div
               key={p.id}
               className={`bg-white rounded-3xl overflow-hidden border border-pink-100 shadow-xs flex flex-col justify-between transition-all ${

@@ -9,7 +9,7 @@ export function Hero() {
   return (
     <section
       id="about"
-      className="relative bg-pink-50 pt-32 pb-32 lg:pt-32 lg:pb-32 overflow-hidden transition-colors duration-500"
+      className="relative w-full bg-pink-50 pt-32 pb-32 lg:pt-32 lg:pb-32 overflow-hidden transition-colors duration-500"
     >
       {/* Decorative Blob */}
       <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>

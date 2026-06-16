@@ -165,51 +165,59 @@ export function BestSellersSection({ initialData }: BestSellersSectionProps) {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex justify-between items-start mb-2 gap-4">
-                    <h4 className="text-xl font-bold text-gray-900">
+                <div className="p-6 flex flex-col flex-1 justify-between">
+                  <div className="space-y-2">
+                    <h4 className="text-xl font-bold text-gray-900 leading-snug">
                       {item.name}
                     </h4>
-                    <span className="text-pink-500 font-semibold bg-white px-3 py-1 rounded-full text-sm shadow-sm whitespace-nowrap">
-                      {formatRupiah(item.price)}
-                      {item.unit}
-                    </span>
+                    <p className="text-gray-600 text-sm line-clamp-2">
+                      {item.description}
+                    </p>
                   </div>
-                  <p className="text-gray-600 text-sm mb-6 line-clamp-2 flex-1">
-                    {item.description}
-                  </p>
 
-                  {quantity > 0 ? (
-                    <div className="flex items-center justify-between bg-white border-2 border-pink-100 rounded-xl overflow-hidden h-12">
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, quantity - 1)
-                        }
-                        className="h-full px-4 text-gray-500 hover:text-gray-900 hover:bg-pink-50 transition-colors flex items-center justify-center"
-                      >
-                        <Minus className="w-5 h-5" />
-                      </button>
-                      <span className="font-bold text-gray-900 w-12 text-center">
-                        {quantity}
+                  <div className="space-y-3 pt-4">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-gray-400">Price</span>
+                      <span className="text-lg font-extrabold text-pink-500 whitespace-nowrap">
+                        {formatRupiah(item.price)}
+                        <span className="text-xs text-gray-400 font-normal">
+                          {item.unit}
+                        </span>
                       </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, quantity + 1)
-                        }
-                        className="h-full px-4 text-pink-500 hover:bg-pink-50 transition-colors flex items-center justify-center"
-                      >
-                        <Plus className="w-5 h-5" />
-                      </button>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => handleAddToCart(item)}
-                      className="w-full flex items-center justify-center gap-2 text-center bg-white border-2 border-pink-100 text-pink-600 font-bold py-3 rounded-xl hover:bg-pink-50 hover:border-pink-200 transition-colors duration-300 h-12"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      Add to Cart
-                    </button>
-                  )}
+
+                    {quantity > 0 ? (
+                      <div className="flex items-center justify-between bg-white border-2 border-pink-100 rounded-xl overflow-hidden h-12">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, quantity - 1)
+                          }
+                          className="h-full px-4 text-gray-500 hover:text-gray-900 hover:bg-pink-50 transition-colors flex items-center justify-center"
+                        >
+                          <Minus className="w-5 h-5" />
+                        </button>
+                        <span className="font-bold text-gray-900 w-12 text-center">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, quantity + 1)
+                          }
+                          className="h-full px-4 text-pink-500 hover:bg-pink-50 transition-colors flex items-center justify-center"
+                        >
+                          <Plus className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleAddToCart(item)}
+                        className="w-full flex items-center justify-center gap-2 text-center bg-white border-2 border-pink-100 text-pink-600 font-bold py-3 rounded-xl hover:bg-pink-50 hover:border-pink-200 transition-colors duration-300 h-12"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        Add to Cart
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
