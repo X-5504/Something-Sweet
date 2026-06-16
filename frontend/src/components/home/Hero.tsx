@@ -9,13 +9,13 @@ export function Hero() {
   return (
     <section
       id="about"
-      className="relative w-full bg-pink-50 pt-32 pb-32 lg:pt-32 lg:pb-32 overflow-hidden transition-colors duration-500"
+      className="relative bg-pink-50 min-h-[75vh] lg:min-h-[calc(100vh-5rem)] flex items-center py-16 lg:py-0 overflow-hidden transition-colors duration-500"
     >
       {/* Decorative Blob */}
       <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
       <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           {/* Text Content */}
           <div className="max-w-xl">
